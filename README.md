@@ -140,4 +140,4 @@ government-booking-system
 
 ## License
 
-This project is developed as part of a **Graduation Project for Software Development Track at DEPI**.
+This project is developed as part of a **Graduation Project for React Frontend Development Track at DEPI**.
