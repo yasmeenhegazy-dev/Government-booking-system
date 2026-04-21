@@ -1,12 +1,30 @@
+
 import { useState } from "react";
 import { Link } from "react-router";
 
 export default function Login() {
   const [email, setEmail] = useState(true);
+const [form , setForm]= useState({
+  email:"",
+  pass:"",
+  nationalId:"",
+  fName:"",
+  lName:"",
+  role:""
+})
+
+  function handleChange(){
+    console.log("Sdada")
+  }
+
+  function login(){
+
+  }
+
   return (
     <div>
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <form className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-6">
+        <form onSubmit={login} className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-6">
           <div className="text-center space-y-2 ">
             <h2 className="text-2xl font-bold">مرحبا بك</h2>
             <p className="text-gray-500 text-sm">سجل دخولك للمتابعة</p>
@@ -15,6 +33,7 @@ export default function Login() {
           {/* Switch buttons */}
           <div className="flex gap-2">
             <button
+            
               onClick={() => {
                 setEmail(true);
               }}
@@ -22,6 +41,7 @@ export default function Login() {
               className={`flex-1 py-2 rounded-lg  ${email ? "bg-black text-white" :"bg-gray-200"}  font-medium text-gray-700 cursor-pointer`}
             >
               البريد الالكتروني
+              
             </button>
             <button
              onClick={() => {
@@ -39,6 +59,8 @@ export default function Login() {
                 البريد الالكتروني
               </label>
               <input
+              onChange={handleChange}
+              value={form.email}
                 type="email"
                 name="email"
                 placeholder="example@email.com"
@@ -51,8 +73,10 @@ export default function Login() {
                 الرقم القومي / رقم الهويه{" "}
               </label>
               <input
+               value={form.nationalId}
+              onChange={handleChange}
                 type="number"
-                name="number"
+                name="nationalId"
                 placeholder="ادخل الرقم القومي المكون من 14 رقما"
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
@@ -65,6 +89,8 @@ export default function Login() {
               كلمة المرور
             </label>
             <input
+            onChange={handleChange}
+             value={form.pass}
               type="password"
               name="pass"
               placeholder="********"
@@ -83,7 +109,7 @@ export default function Login() {
           </div>
 
           {/* Submit */}
-          <button className="w-full bg-black text-white py-2 rounded-lg font-semibold hover:bg-blue-600 transition">
+          <button  type="submit" className="w-full bg-black text-white py-2 rounded-lg font-semibold hover:bg-blue-600 transition">
             تسجيل الدخول
           </button>
 
