@@ -2,7 +2,7 @@
 
 :root {
   --deep-navy: #002B5B;
-  --gold-accent: #C5A059; /* غيرنا الاسم هنا عشان يطابق اللي تحت */
+  --gold-accent: #C5A059; 
   --soft-gray: #F8FAFC;
   --white: #ffffff;
   --text-main: #1E293B;
@@ -14,8 +14,8 @@
 
 body {
   font-family: 'Tajawal', 'Inter', sans-serif;
-  background-color: var(--soft-gray); /* صلحنا اسم المتغير */
-  color: var(--text-main); /* صلحنا اسم المتغير */
+  background-color: var(--soft-gray);
+  color: var(--text-main); 
   margin: 0;
   direction: rtl;
 }
@@ -23,16 +23,15 @@ body {
 
 .admin-layout {
   display: flex;
-  min-height: 100vh; /* أهم تعديل عشان السايد بار يفرش لآخر الصفحة */
+  min-height: 100vh; 
 }
 
 /* Sidebar */
-/* Sidebar Container */
 .sidebar {
   width: 280px;
   background-color: var(--deep-navy);
   color: var(--white);
-  padding: 40px 0; /* البادينج فوق وتحت بس */
+  padding: 40px 0; 
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -41,7 +40,6 @@ body {
   box-shadow: 4px 0 15px rgba(0,0,0,0.1);
 }
 
-/* Logo Section Centerization */
 .logo-section {
   display: flex;
   flex-direction: column;
@@ -55,9 +53,9 @@ body {
 .sidebar nav {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* مسافة ثابتة بين الأزرار */
+  gap: 8px; 
   padding: 0 15px;
-  flex: 1; /* عشان يخلي باقي المساحة للـ nav */
+  flex: 1; 
 }
 
 /* Nav Items Style */
@@ -82,18 +80,18 @@ body {
 .nav-item:hover {
   background-color: rgba(255, 255, 255, 0.05);
   color: var(--white);
-  transform: translateX(-5px); /* حركة خفيفة للشمال عشان إحنا RTL */
+  transform: translateX(-5px); 
 }
 
 .nav-item.active {
-  background-color: rgba(197, 160, 89, 0.15); /* خلفية ذهبية شفافة */
+  background-color: rgba(197, 160, 89, 0.15); 
   color: var(--gold-accent);
   font-weight: 600;
 }
 
 /* Logout Button Specific Style */
 .logout-btn {
-  margin-top: auto !important; /* بيزق الزرار لآخر السايد بار تحت */
+  margin-top: auto !important; 
   margin-bottom: 20px;
   color: #ff6b6b !important;
   border-top: 1px solid rgba(255,255,255,0.1);
@@ -177,7 +175,7 @@ body {
 
 /* Buttons */
 .btn-confirm {
-  background-color: var(--gold-accent); /* صلحنا الاسم */
+  background-color: var(--gold-accent); 
   color: var(--white);
   border: none;
   padding: 10px 24px;
@@ -198,36 +196,33 @@ body {
   font-size: 13px;
   font-weight: 500;
 }
-/* تنسيق قسم اللوجو في السايد بار */
 .logo-section {
   display: flex;
-  flex-direction: column; /* عشان نخلي اللوجو فوق العنوان */
-  align-items: center;    /* التوسيط الأفقي */
+  flex-direction: column; 
+  align-items: center;    
   justify-content: center;
-  width: 100%;            /* يشغل عرض السايد بار كله */
-  margin-bottom: 40px;    /* مسافة تحت اللوجو */
-  padding: 0;             /* نصفر البادينج عشان ميحدفهوش يمين */
+  width: 100%;            
+  margin-bottom: 40px;    
+  padding: 0;             
 }
 
 .logo-section img {
-  width: 60px;            /* حجم مناسب للوجو */
+  width: 60px;            
   height: auto;
-  margin-bottom: 15px;    /* مسافة بين اللوجو وكلمة بوابة الخدمات */
-  display: block;         /* نضمن إنه يتعامل كعنصر مستقل */
+  margin-bottom: 15px;    
+  display: block;         
 }
 
-/* السايد بار نفسه نأكد إنه بيسنتر محتوياته */
 .sidebar {
   display: flex;
   flex-direction: column;
-  align-items: center;    /* دي هتخلي كل حاجة جواه في النص */
-  padding: 40px 0;        /* نشيل البادينج الجانبي عشان التوسيط يبقى دقيق */
+  align-items: center;    
+  padding: 40px 0;        
 }
 
-/* نصلح الـ nav عشان ميتأثرش بتوسيط السايد بار ويظل واخد عرض مناسب */
 .sidebar nav {
   width: 100%;
-  padding: 0 20px;        /* نرجع البادينج للأزرار بس */
+  padding: 0 20px;       
 } 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
@@ -240,7 +235,6 @@ body {
 .spin-animation {
   animation: spin 1s linear infinite;
 }
-/* الخلفية العامة والخطوط */
 .auth-container {
     background: #F8FAFC;
     min-height: 100vh;
@@ -251,7 +245,6 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* الكارت الأبيض الرئيسي */
 .auth-card {
     background: white;
     padding: 40px;
@@ -263,9 +256,8 @@ body {
     text-align: center;
 }
 
-/* العناوين بنفس ألوان اللوجو */
 .auth-title {
-    color: #002B5B; /* الكحلي بتاعك */
+    color: #002B5B; 
     font-weight: 800;
     font-size: 1.8rem;
     margin-bottom: 10px;
@@ -277,7 +269,6 @@ body {
     margin-bottom: 30px;
 }
 
-/* تصميم الـ Inputs الموحد */
 .auth-input-group {
     text-align: right;
     margin-bottom: 20px;
@@ -302,11 +293,10 @@ body {
 }
 
 .auth-input:focus {
-    border-color: #C5A059; /* الدهبي بتاعك */
+    border-color: #C5A059; 
     box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
 }
 
-/* الزرار الرئيسي بالدهبي */
 .auth-btn {
     width: 100%;
     padding: 14px;
@@ -322,7 +312,7 @@ body {
 }
 
 .auth-btn:hover {
-    background: #002B5B; /* يقلب كحلي عند الهوفر */
+    background: #002B5B;
     transform: translateY(-2px);
 }
 

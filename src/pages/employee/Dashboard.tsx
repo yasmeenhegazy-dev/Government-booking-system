@@ -3,14 +3,31 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { 
-  LayoutDashboard, UserCheck, Clock, ShieldCheck, LogOut, BarChart3, 
-  QrCode, X, User, Bell, TrendingUp, Users, Calendar
+  LayoutDashboard, UserCheck, ShieldCheck, LogOut, 
+  QrCode, X, User, Bell, TrendingUp, Users, Calendar, Clock
 } from 'lucide-react';
+// @ts-ignore
 import logo from "../../assets/logo.svg";
 
-function Dashboard() {
-  const [appointments, setAppointments] = useState([]);
-  const [showScanner, setShowScanner] = useState(false);
+interface Appointment {
+  _id: string;
+  citizenName: string;
+  service: string;
+  time: string;
+  status: 'pending' | 'checked-in';
+}
+
+interface StatCardProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+  trend: string;
+  color: string;
+}
+
+const Dashboard: React.FC = () => {
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [showScanner, setShowScanner] = useState<boolean>(false);
   const navigate = useNavigate();
   
   const employeeName = localStorage.getItem('employeeName') || 'منة فرجاني';
@@ -32,16 +49,21 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
-    let scanner;
+    let scanner: Html5QrcodeScanner;
     if (showScanner) {
-      scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-      scanner.render(async (decodedText) => {
-        scanner.clear();
+      scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 }, false);
+      scanner.render(async (decodedText: string) => {
+        await scanner.clear();
         setShowScanner(false);
         navigate(`/appointment/${decodedText}`);
-      }, (err) => {});
+      }, (_err: string) => {
+      });
     }
-    return () => scanner?.clear().catch(() => {});
+    return () => {
+      if (scanner) {
+        scanner.clear().catch(error => console.error("Failed to clear scanner", error));
+      }
+    };
   }, [showScanner, navigate]);
 
   const handleLogout = () => {
@@ -53,7 +75,6 @@ function Dashboard() {
   return (
     <div className="admin-layout" style={{ display: 'flex', background: '#F8FAFC', minHeight: '100vh', direction: 'rtl' }}>
       
-      {/* Sidebar */}
       <aside className="sidebar" style={{ width: '280px', background: '#002B5B', color: 'white', padding: '30px 20px', display: 'flex', flexDirection: 'column' }}>
         <div className="logo-section" style={{ textAlign: 'center', marginBottom: '40px' }}>
           <img src={logo} alt="Logo" style={{ width: '70px', filter: 'drop-shadow(0 0 10px rgba(197, 160, 89, 0.3))' }} />
@@ -61,19 +82,19 @@ function Dashboard() {
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
-          <button className="nav-item active" onClick={() => navigate('/dashboard')}>
+          <button className="nav-item active" style={{ background: 'rgba(197, 160, 89, 0.1)', border: 'none', color: '#C5A059', padding: '12px', borderRadius: '10px', textAlign: 'right', display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate('/dashboard')}>
             <LayoutDashboard size={20} /> <span style={{marginRight: '10px'}}>لوحة التحكم</span>
           </button>
 
-          <button className="nav-item" onClick={() => navigate('/daily-review')}>
+          <button className="nav-item" style={{ background: 'transparent', border: 'none', color: 'white', padding: '12px', borderRadius: '10px', textAlign: 'right', display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate('/daily-review')}>
             <UserCheck size={20} /> <span style={{marginRight: '10px'}}>المراجعة اليومية</span>
           </button>
 
-          <button className="nav-item" onClick={() => navigate('/analytics')}>
-            <BarChart3 size={20} /> <span style={{marginRight: '10px'}}>الإحصائيات الذكية</span>
+          <button className="nav-item" style={{ background: 'transparent', border: 'none', color: 'white', padding: '12px', borderRadius: '10px', textAlign: 'right', display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate('/analytics')}>
+            <TrendingUp size={20} /> <span style={{marginRight: '10px'}}>التحليلات</span>
           </button>
 
-          <button className="nav-item" onClick={() => navigate('/profile')}>
+          <button className="nav-item" style={{ background: 'transparent', border: 'none', color: 'white', padding: '12px', borderRadius: '10px', textAlign: 'right', display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate('/profile')}>
             <User size={20} /> <span style={{marginRight: '10px'}}>الملف الشخصي</span>
           </button>
           
@@ -90,7 +111,8 @@ function Dashboard() {
                 gap: '10px',
                 background: 'transparent',
                 cursor: 'pointer',
-                padding: '10px'
+                padding: '10px',
+                borderRadius: '10px'
               }}
             >
               <LogOut size={20} /> تسجيل الخروج
@@ -100,8 +122,6 @@ function Dashboard() {
       </aside>
 
       <main className="main-content" style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>
-        
-        {/* Top Header */}
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
           <div>
             <h1 style={{ color: '#002B5B', fontSize: '2rem', fontWeight: '800', margin: 0 }}>مكتب جوازات الغربية</h1>
@@ -121,7 +141,6 @@ function Dashboard() {
           </div>
         </header>
 
-        {/* الإحصائيات */}
         <div className="stats-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '40px' }}>
           <StatCard icon={<Users color="#002B5B"/>} label="إجمالي الحجوزات" value={appointments.length} trend="+5%" color="#E0F2FE" />
           <StatCard icon={<Clock color="#C5A059"/>} label="في الانتظار" value={appointments.filter(a => a.status === 'pending').length} trend="حالي" color="#FFF7ED" />
@@ -130,7 +149,6 @@ function Dashboard() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
-          {/* الجدول */}
           <section style={{ background: 'white', padding: '25px', borderRadius: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h3 style={{ margin: 0, color: '#002B5B' }}>الحجوزات القادمة</h3>
@@ -168,7 +186,6 @@ function Dashboard() {
             </table>
           </section>
 
-          {/* التقويم */}
           <section style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ background: 'white', padding: '20px', borderRadius: '20px', textAlign: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
               <Calendar size={40} color="#C5A059" style={{ marginBottom: '10px' }} />
@@ -178,7 +195,6 @@ function Dashboard() {
           </section>
         </div>
 
-        {/* Scanner Modal */}
         {showScanner && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
             <div style={{ background: 'white', borderRadius: '25px', padding: '30px', width: '90%', maxWidth: '500px', position: 'relative' }}>
@@ -193,7 +209,7 @@ function Dashboard() {
   );
 }
 
-const StatCard = ({ icon, label, value, trend, color }) => (
+const StatCard: React.FC<StatCardProps> = ({ icon, label, value, trend, color }) => (
   <div style={{ 
     background: 'white',
     padding: '20px', 

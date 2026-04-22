@@ -1,16 +1,29 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  LogOut, User, Mail, Building, Contact, Shield, 
+  LogOut, Mail, Building, Contact, Shield, 
   Zap, Award, Verified, ArrowRight 
 } from 'lucide-react';
+// @ts-ignore
 import logo from "../../assets/logo.svg";
 
-function Profile() {
-  const navigate = useNavigate();
-  const employeeName = localStorage.getItem('employeeName') || 'منة فرجاني';
+interface InfoCardProps {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+}
 
-  const handleLogout = () => {
+interface ActivityRowProps {
+  status: 'done' | 'pending';
+  text: string;
+  time: string;
+}
+
+const Profile: React.FC = () => {
+  const navigate = useNavigate();
+  const employeeName: string = localStorage.getItem('employeeName') || 'منة فرجاني';
+
+  const handleLogout = (): void => {
     localStorage.removeItem('token');
     localStorage.removeItem('employeeName');
     navigate('/'); 
@@ -18,13 +31,13 @@ function Profile() {
 
   return (
     <div className="main-content" style={{ 
-      animation: 'fadeIn 0.8s ease-out', 
       background: '#F8FAFC',
       minHeight: '100vh',
       padding: '40px',
       direction: 'rtl' 
     }}>
       
+      {/* Header */}
       <header style={{ 
         display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
         marginBottom: '40px', background: 'white', padding: '20px 30px', 
@@ -67,25 +80,27 @@ function Profile() {
               background: 'linear-gradient(135deg, #002B5B 0%, #C5A059 100%)',
               margin: '0 auto 20px', display: 'flex', alignItems: 'center', 
               justifyContent: 'center', color: 'white', fontSize: '3.5rem',
-              boxShadow: '0 15px 30px rgba(0, 43, 91, 0.2)'
+              boxShadow: '0 15px 30px rgba(0, 43, 91, 0.2)',
+              fontWeight: 'bold'
             }}>
               {employeeName.charAt(0)}
             </div>
             <h3 style={{ color: '#002B5B', margin: '0 0 5px', fontWeight: '800' }}>{employeeName}</h3>
             <span style={{ 
                 fontSize: '0.8rem', background: '#DCFCE7', color: '#16A34A', 
-                padding: '5px 12px', borderRadius: '20px', display: 'inline-flex', alignItems: 'center' 
+                padding: '5px 12px', borderRadius: '20px', display: 'inline-flex', alignItems: 'center',
+                fontWeight: 'bold'
             }}>
               <Verified size={14} style={{ marginLeft: '5px' }} /> مسؤول نظام معتمد
             </span>
             
             <div style={{ marginTop: '30px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <button style={{ width: '100%', padding: '12px', borderRadius: '12px', background: '#002B5B', color: 'white', border: 'none', cursor: 'pointer' }}>
+              <button style={{ width: '100%', padding: '12px', borderRadius: '12px', background: '#002B5B', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
                  تعديل البيانات
               </button>
               <button 
                 onClick={handleLogout}
-                style={{ width: '100%', padding: '12px', borderRadius: '12px', background: '#FEF2F2', color: '#EF4444', border: '1px solid #FEE2E2', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                style={{ width: '100%', padding: '12px', borderRadius: '12px', background: '#FEF2F2', color: '#EF4444', border: '1px solid #FEE2E2', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold' }}
               >
                 <LogOut size={18} style={{ marginLeft: '8px' }} /> تسجيل الخروج
               </button>
@@ -93,7 +108,7 @@ function Profile() {
           </div>
 
           <div style={{ background: '#002B5B', color: 'white', padding: '25px', borderRadius: '25px' }}>
-            <h4 style={{ color: '#C5A059', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h4 style={{ color: '#C5A059', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 0 15px' }}>
               <Award size={18} /> ملخص الأداء
             </h4>
             <div style={{ fontSize: '0.9rem' }}>
@@ -111,17 +126,15 @@ function Profile() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
             <InfoCard icon={Mail} label="البريد الرسمي" value="menna.f@gov.eg" />
-            <InfoCard icon={Building} label="فرع العمل" value="مكتب الغربية " />
+            <InfoCard icon={Building} label="فرع العمل" value="مكتب جوازات الغربية" />
             <InfoCard icon={Contact} label="الرقم الوظيفي" value="GOV-2026-MF88" />
             <InfoCard icon={Shield} label="الصلاحية" value="مدير نظام (Admin)" />
           </div>
 
-          <div style={{ background: 'white', padding: '30px', borderRadius: '25px', border: '1px solid #F1F5F9' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-              <h3 style={{ color: '#002B5B', margin: 0, display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '800' }}>
-                <Zap size={22} color="#C5A059" /> سجل النشاط الأخير
-              </h3>
-            </div>
+          <div style={{ background: 'white', padding: '30px', borderRadius: '25px', border: '1px solid #F1F5F9', boxShadow: '0 4px 10px rgba(0,0,0,0.01)' }}>
+            <h3 style={{ color: '#002B5B', margin: '0 0 25px', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '800' }}>
+              <Zap size={22} color="#C5A059" /> سجل النشاط الأخير
+            </h3>
 
             <div className="activity-list">
               <ActivityRow status="done" text="تم التحقق من QR الخاص بالمواطن: أحمد علي" time="منذ 5 دقائق" />
@@ -135,10 +148,11 @@ function Profile() {
   );
 }
 
-const InfoCard = ({ icon: Icon, label, value }) => (
+const InfoCard: React.FC<InfoCardProps> = ({ icon: Icon, label, value }) => (
   <div style={{ 
     background: 'white', padding: '25px', borderRadius: '20px',
-    border: '1px solid #F1F5F9', transition: 'all 0.3s ease'
+    border: '1px solid #F1F5F9', transition: 'all 0.3s ease',
+    boxShadow: '0 4px 10px rgba(0,0,0,0.01)'
   }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
       <div style={{ color: '#C5A059', background: 'rgba(197, 160, 89, 0.1)', padding: '10px', borderRadius: '12px' }}>
@@ -150,7 +164,7 @@ const InfoCard = ({ icon: Icon, label, value }) => (
   </div>
 );
 
-const ActivityRow = ({ status, text, time }) => (
+const ActivityRow: React.FC<ActivityRowProps> = ({ status, text, time }) => (
   <div style={{ 
     display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
     padding: '18px 0', borderBottom: '1px solid #F8FAFC' 
