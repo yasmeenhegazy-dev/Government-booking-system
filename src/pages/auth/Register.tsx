@@ -1,171 +1,134 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
+import logo from "../../assets/logo.svg";
 
 export default function Register() {
-  const [citizen, setCitizen] = useState(Boolean);
+  const navigate = useNavigate();
+  const [citizen, setCitizen] = useState(true);
 
   const [form, setForm] = useState({
-    fName: "",
-    lName: "",
+    firstName: "",
+    lastName: "",
     email: "",
-    pass: "",
+    password: "",
     nationalId: "",
-    role: "",
+    role: "citizen",
   });
-  async function register(e) {
-    e.preventDefault();
-    if (!form.role) {
-      alert("اختار مواطن أو موظف");
-      return;
-    }
 
+  async function register(e: React.FormEvent) {
+    e.preventDefault();
+    
     try {
       const res = await fetch("http://localhost:3000/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
+
       const data = await res.json();
-      console.log(data);
+
+      if (res.ok) {
+        if (data.token) {
+          localStorage.setItem("userToken", data.token);
+        }
+
+        console.log("تم التسجيل بنجاح:", data.message);
+        
+        if (form.role === "employee") {
+          navigate("/dashboard");
+        } else {
+          navigate("/home"); 
+        }
+      } else {
+        alert(data.message || "فشل التسجيل، تأكد من البيانات");
+      }
     } catch (err) {
-      console.log(err);
+      console.error("خطأ في الاتصال بالسيرفر:", err);
+      alert("تعذر الاتصال بالخادم، جرب مرة أخرى لاحقاً");
     }
   }
 
-  function handleChange(e: any) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '12px 15px', borderRadius: '12px', border: '1px solid #E2E8F0',
+    background: '#F8FAFC', outline: 'none', boxSizing: 'border-box', transition: '0.3s'
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: 'block', color: '#002B5B', fontWeight: '700', marginBottom: '5px', fontSize: '0.85rem'
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form
-        onSubmit={register}
-        className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-6"
-      >
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold">مرحبا بك</h2>
-          <p className="text-gray-500 text-sm">سجل دخولك للمتابعة</p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', direction: 'rtl', padding: '20px' }}>
+      <div style={{ background: 'white', padding: '40px', borderRadius: '25px', boxShadow: '0 10px 30px rgba(0, 43, 91, 0.05)', border: '1px solid #F1F5F9', width: '100%', maxWidth: '480px' }}>
+        
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          <div style={{ background: '#F1F5F9', width: '70px', height: '70px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 15px' }}>
+            <img src={logo} alt="Logo" style={{ width: '45px' }} />
+          </div>
+          <h2 style={{ color: '#002B5B', fontWeight: '800', fontSize: '1.7rem', margin: '0' }}>إنشاء حساب</h2>
+          <p style={{ color: '#64748B', fontSize: '0.9rem', marginTop: '5px' }}>سجلي بياناتك للانضمام للمنظومة</p>
         </div>
 
-        {/* Switch buttons */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              setForm({ ...form, role: "citizen" });
-              setCitizen(true);
-            }}
-            type="button"
-            className={`flex-1 py-2 rounded-lg ${
-              citizen == true
-                ? "bg-black text-white"
-                : "bg-gray-200 text-gray-700"
-            } font-medium cursor-pointer`}
-          >
-            مواطن
-          </button>
-          <button
-            onClick={() => {
-              setForm({ ...form, role: "employee" });
-              setCitizen(false);
-            }}
-            type="button"
-            className={`flex-1 py-2 rounded-lg ${citizen == true ? " bg-gray-200 " : " bg-black text-white "}  text-gray-700 cursor-pointer`}
-          >
-            موظف
-          </button>
-        </div>
-
-        {/* First & Last Name */}
-        <div className="flex gap-3">
-          <div className="w-1/2 space-y-1">
-            <label className="text-sm font-medium text-black">
-              الاسم الأول
-            </label>
-            <input
-              name="fName"
-              onChange={handleChange}
-              type="text"
-              placeholder="أحمد"
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
+        <form onSubmit={register} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          <div style={{ display: 'flex', background: '#F1F5F9', padding: '5px', borderRadius: '12px' }}>
+            <button
+              onClick={() => { setForm({ ...form, role: "citizen" }); setCitizen(true); }}
+              type="button"
+              style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', cursor: 'pointer', background: citizen ? 'white' : 'transparent', color: citizen ? '#002B5B' : '#64748B', fontWeight: '600', boxShadow: citizen ? '0 4px 10px rgba(0,0,0,0.05)' : 'none' }}
+            >
+              مواطن
+            </button>
+            <button
+              onClick={() => { setForm({ ...form, role: "employee" }); setCitizen(false); }}
+              type="button"
+              style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', cursor: 'pointer', background: !citizen ? 'white' : 'transparent', color: !citizen ? '#002B5B' : '#64748B', fontWeight: '600', boxShadow: !citizen ? '0 4px 10px rgba(0,0,0,0.05)' : 'none' }}
+            >
+              موظف
+            </button>
           </div>
 
-          <div className="w-1/2 space-y-1">
-            <label className="text-sm font-medium text-black">
-              الاسم الأخير
-            </label>
-            <input
-              name="lName"
-              onChange={handleChange}
-              type="text"
-              placeholder="محمد"
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+            <div style={{ textAlign: 'right' }}>
+              <label style={labelStyle}>الاسم الأول</label>
+              <input name="firstName" onChange={handleChange} value={form.firstName} type="text" style={inputStyle} required />
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <label style={labelStyle}>الاسم الأخير</label>
+              <input name="lastName" onChange={handleChange} value={form.lastName} type="text" style={inputStyle} required />
+            </div>
           </div>
-        </div>
 
-        {/* Email */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium text-black">
-            البريد الالكتروني
-          </label>
-          <input
-            name="email"
-            onChange={handleChange}
-            type="email"
-            placeholder="example@email.com"
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
+          <div style={{ textAlign: 'right' }}>
+            <label style={labelStyle}>البريد الالكتروني</label>
+            <input name="email" onChange={handleChange} value={form.email} type="email" placeholder="example@email.com" style={inputStyle} required />
+          </div>
 
-        {/* National ID */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium text-black">الرقم القومي</label>
-          <input
-            name="nationalId"
-            onChange={handleChange}
-            type="number"
-            placeholder="ادخل الرقم القومي (14 رقم)"
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
+          <div style={{ textAlign: 'right' }}>
+            <label style={labelStyle}>الرقم القومي</label>
+            <input name="nationalId" onChange={handleChange} value={form.nationalId} type="number" placeholder="14 رقم" style={inputStyle} required />
+          </div>
 
-        {/* Password */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium text-black">كلمة المرور</label>
-          <input
-            name="pass"
-            onChange={handleChange}
-            type="password"
-            placeholder="********"
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
+          <div style={{ textAlign: 'right' }}>
+            <label style={labelStyle}>كلمة المرور</label>
+            <input name="password" onChange={handleChange} value={form.password} type="password" placeholder="********" style={inputStyle} required />
+          </div>
 
-        {/* Forget password */}
-        {/* <div className="text-right">
-          <a href="#" className="text-sm text-blue-500 hover:underline">
-            نسيت كلمة المرور؟
-          </a>
-        </div> */}
+          <button type="submit" style={{ width: '100%', padding: '14px', background: '#002B5B', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '700', fontSize: '1.1rem', cursor: 'pointer', transition: '0.3s', marginTop: '10px', boxShadow: '0 4px 15px rgba(0, 43, 91, 0.2)' }}>
+            إنشاء حساب
+          </button>
 
-        {/* Submit */}
-        <button
-          type="submit"
-          className="w-full bg-black text-white py-2 rounded-lg font-semibold hover:bg-gray-800 transition"
-        >
-          انشاء حساب
-        </button>
-
-        {/* Register */}
-        <div className="text-center text-sm">
-          <span>لديك حساب بالفعل؟ </span>
-          <Link to="/" className="text-blue-500 hover:underline">
-            تسجيل الدخول
-          </Link>
-        </div>
-      </form>
+          <div style={{ textAlign: 'center', fontSize: '0.9rem', color: '#64748B' }}>
+            لديك حساب بالفعل؟ 
+            <Link to="/" style={{ color: '#C5A059', fontWeight: '700', marginRight: '5px', textDecoration: 'none' }}>
+              تسجيل الدخول
+            </Link>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

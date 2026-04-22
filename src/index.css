@@ -1,10 +1,27 @@
 
-@import "tailwindcss";
-
-
-
-body {
-  background-color: black;
-  
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
 }
 
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  /* شيلنا اللون الأسود وحطينا لون رمادي فاتح جداً عشان الـ Inputs تبان */
+  background-color: #f3f4f6; 
+  color: #1a1a1a;
+}
+
+#root {
+  width: 100%;
+}
+
+/* تحسين شكل الـ Inputs عشان تظهر بوضوح */
+input {
+  background-color: white !important;
+  color: black !important;
+}

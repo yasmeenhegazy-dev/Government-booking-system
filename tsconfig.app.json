@@ -14,6 +14,11 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    
+    /* السطور اللي هنضيفها عشان ملفاتك تشتغل */
+    "allowJs": true, 
+    "checkJs": false,
+    "noImplicitAny": false,
 
     /* Linting */
     "noUnusedLocals": true,

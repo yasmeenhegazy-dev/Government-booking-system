@@ -1,0 +1,340 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Inter:wght@400;600&display=swap');
+
+:root {
+  --deep-navy: #002B5B;
+  --gold-accent: #C5A059; /* غيرنا الاسم هنا عشان يطابق اللي تحت */
+  --soft-gray: #F8FAFC;
+  --white: #ffffff;
+  --text-main: #1E293B;
+  --text-muted: #64748B;
+  --success: #16A34A;
+  --error: #EF4444;
+  --shadow: 0 4px 20px rgba(0, 43, 91, 0.08);
+}
+
+body {
+  font-family: 'Tajawal', 'Inter', sans-serif;
+  background-color: var(--soft-gray); /* صلحنا اسم المتغير */
+  color: var(--text-main); /* صلحنا اسم المتغير */
+  margin: 0;
+  direction: rtl;
+}
+
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh; /* أهم تعديل عشان السايد بار يفرش لآخر الصفحة */
+}
+
+/* Sidebar */
+/* Sidebar Container */
+.sidebar {
+  width: 280px;
+  background-color: var(--deep-navy);
+  color: var(--white);
+  padding: 40px 0; /* البادينج فوق وتحت بس */
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+}
+
+/* Logo Section Centerization */
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 50px;
+  text-align: center;
+  padding: 0 20px;
+}
+
+/* Navigation Menu */
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* مسافة ثابتة بين الأزرار */
+  padding: 0 15px;
+  flex: 1; /* عشان يخلي باقي المساحة للـ nav */
+}
+
+/* Nav Items Style */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+/* Hover & Active States */
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--white);
+  transform: translateX(-5px); /* حركة خفيفة للشمال عشان إحنا RTL */
+}
+
+.nav-item.active {
+  background-color: rgba(197, 160, 89, 0.15); /* خلفية ذهبية شفافة */
+  color: var(--gold-accent);
+  font-weight: 600;
+}
+
+/* Logout Button Specific Style */
+.logout-btn {
+  margin-top: auto !important; /* بيزق الزرار لآخر السايد بار تحت */
+  margin-bottom: 20px;
+  color: #ff6b6b !important;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 20px;
+  border-radius: 0;
+}
+
+.logout-btn:hover {
+  background-color: rgba(255, 107, 107, 0.1);
+  transform: none;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 40px 60px;
+  background-color: var(--soft-gray);
+}
+
+/* Stats Cards */
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-bottom: 50px;
+}
+
+.stat-card {
+  background: var(--white);
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 3px solid transparent;
+  transition: 0.3s;
+}
+
+.stat-card:hover {
+  border-bottom: 3px solid var(--gold-accent);
+  transform: translateY(-5px);
+}
+
+.stat-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background: #f1f5f9;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--deep-navy);
+}
+
+/* Table */
+.table-wrapper {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: var(--shadow);
+}
+
+.modern-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.modern-table th {
+  text-align: right;
+  padding: 16px;
+  color: var(--text-muted);
+  font-weight: 500;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.modern-table td {
+  padding: 20px 16px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+/* Buttons */
+.btn-confirm {
+  background-color: var(--gold-accent); /* صلحنا الاسم */
+  color: var(--white);
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Tajawal';
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.btn-confirm:hover {
+  filter: brightness(1.1);
+}
+
+.status-label {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+/* تنسيق قسم اللوجو في السايد بار */
+.logo-section {
+  display: flex;
+  flex-direction: column; /* عشان نخلي اللوجو فوق العنوان */
+  align-items: center;    /* التوسيط الأفقي */
+  justify-content: center;
+  width: 100%;            /* يشغل عرض السايد بار كله */
+  margin-bottom: 40px;    /* مسافة تحت اللوجو */
+  padding: 0;             /* نصفر البادينج عشان ميحدفهوش يمين */
+}
+
+.logo-section img {
+  width: 60px;            /* حجم مناسب للوجو */
+  height: auto;
+  margin-bottom: 15px;    /* مسافة بين اللوجو وكلمة بوابة الخدمات */
+  display: block;         /* نضمن إنه يتعامل كعنصر مستقل */
+}
+
+/* السايد بار نفسه نأكد إنه بيسنتر محتوياته */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;    /* دي هتخلي كل حاجة جواه في النص */
+  padding: 40px 0;        /* نشيل البادينج الجانبي عشان التوسيط يبقى دقيق */
+}
+
+/* نصلح الـ nav عشان ميتأثرش بتوسيط السايد بار ويظل واخد عرض مناسب */
+.sidebar nav {
+  width: 100%;
+  padding: 0 20px;        /* نرجع البادينج للأزرار بس */
+} 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin-animation {
+  animation: spin 1s linear infinite;
+}
+/* الخلفية العامة والخطوط */
+.auth-container {
+    background: #F8FAFC;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    direction: rtl;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* الكارت الأبيض الرئيسي */
+.auth-card {
+    background: white;
+    padding: 40px;
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(0, 43, 91, 0.05);
+    border: 1px solid #F1F5F9;
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+}
+
+/* العناوين بنفس ألوان اللوجو */
+.auth-title {
+    color: #002B5B; /* الكحلي بتاعك */
+    font-weight: 800;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+}
+
+.auth-subtitle {
+    color: #64748B;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+}
+
+/* تصميم الـ Inputs الموحد */
+.auth-input-group {
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.auth-label {
+    display: block;
+    color: #002B5B;
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    transition: 0.3s;
+    outline: none;
+}
+
+.auth-input:focus {
+    border-color: #C5A059; /* الدهبي بتاعك */
+    box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
+}
+
+/* الزرار الرئيسي بالدهبي */
+.auth-btn {
+    width: 100%;
+    padding: 14px;
+    background: #C5A059;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
+}
+
+.auth-btn:hover {
+    background: #002B5B; /* يقلب كحلي عند الهوفر */
+    transform: translateY(-2px);
+}
+
+/* اللينكات */
+.auth-link {
+    color: #C5A059;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+}
+.status-label.pending { background: #FFFBEB; color: #D97706; }
+.status-label.done { background: #F0FDF4; color: #16A34A; }
