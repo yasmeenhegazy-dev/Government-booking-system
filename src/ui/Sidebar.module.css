@@ -1,0 +1,29 @@
+.sidebar {
+  grid-column: center-start/col-end 1;
+  background-color: var(--deep-navy);
+  color: var(--text-muted-dark);
+  border-radius: var(--border-radius-md);
+  border-top-right-radius: 0%;
+  border-top-left-radius: 0%;
+  height: 50rem;
+}
+
+.navitem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem;
+  border-radius: var(--border-radius-sm);
+  text-decoration: none;
+  color: inherit;
+}
+
+.navitem:hover {
+  color: var(--gold-accent-dark);
+  background-color: var(--gold-accent-light);
+}
+
+.active {
+  color: var(--gold-accent-dark);
+  background-color: var(--gold-accent-light);
+}

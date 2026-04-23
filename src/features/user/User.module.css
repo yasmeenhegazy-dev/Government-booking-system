@@ -1,0 +1,5 @@
+.username {
+  background-color: var(--gold-accent);
+  padding: 0.4rem;
+  border-radius: 50%;
+}

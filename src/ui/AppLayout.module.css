@@ -1,0 +1,9 @@
+.layout {
+  display: grid;
+  grid-template-columns:
+    [full-start]1fr[center-start] repeat(6, [col-start] 6fr [col-end])
+    [center-end] 1fr[full-end];
+}
+.main {
+  grid-column: col-start 2 / center-end;
+}

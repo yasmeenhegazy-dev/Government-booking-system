@@ -1,0 +1,95 @@
+/* Government Digital Portal - Global Design System */
+:root {
+  --deep-navy: #002b5b;
+
+  --gold-accent: #c5a059;
+  --gold-accent-light: #f1ce8d;
+  --gold-accent-dark: #9e8047;
+
+  --soft-gray: #f8fafc;
+  --white: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --text-muted-dark: #8fa2bd;
+
+  --success: #16a34a;
+  --error: #ef4444;
+  --shadow: 0 4px 20px rgba(0, 43, 91, 0.08);
+
+  --border-radius-tiny: 3px;
+  --border-radius-sm: 5px;
+  --border-radius-md: 7px;
+  --border-radius-lg: 9px;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: var(--soft-gray);
+  color: var(--text-main);
+  direction: rtl;
+  margin: 0;
+}
+
+.btn-primary {
+  background: var(--deep-navy);
+  color: var(--white);
+  border: none;
+  cursor: pointer;
+  transition: 0.3s ease;
+  font-weight: 600;
+}
+.btn-secondary {
+  background: var(--white);
+  color: var(--deep-navy);
+  border: none;
+
+  cursor: pointer;
+  transition: 0.3s ease;
+  font-weight: 600;
+}
+
+.btn-secondary:hover {
+  background: var(--gold-accent);
+  transform: translateY(-2px);
+  color: var(--white);
+  border: none;
+}
+
+.btn-primary:hover,
+.btn-primary:active {
+  background: var(--gold-accent);
+  transform: translateY(-2px);
+}
+
+.card-standard {
+  background: var(--white);
+  border-radius: 9px;
+  padding: 25px;
+  box-shadow: var(--shadow);
+}
+
+.input-standard {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.input-standard:focus {
+  border-color: var(--gold-accent);
+  box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
+}
+ul,
+li {
+  list-style: none;
+}
+a {
+  text-decoration: none;
+  color: inherit;
+}

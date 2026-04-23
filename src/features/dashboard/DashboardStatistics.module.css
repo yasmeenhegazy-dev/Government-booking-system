@@ -1,0 +1,9 @@
+.mainContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+.icon {
+  height: 1.6rem;
+  width: 1.6rem;
+}
