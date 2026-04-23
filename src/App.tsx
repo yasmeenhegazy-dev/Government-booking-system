@@ -10,15 +10,19 @@ import Analytics from "./pages/employee/Analytics";
 import AppointmentDetails from "./pages/employee/AppointmentDetails";
 import DailyReview from "./pages/employee/DailyReview";
 import Profile from "./pages/employee/Profile";
+import ResetPassword from "./pages/auth/ResetPassword";
+
 
 function App() {
   return (
     <Router>
+      
       <Routes>
         {/* صفحات عبد الرحمن */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/forget-password" element={<ForgetPassword />} />
+        <Route path="/forgetpassword" element={<ForgetPassword />} />
+        <Route path="resetpassword" element={<ResetPassword />} />
 
         {/* صفحاتك إنتي */}
         <Route path="/dashboard" element={<Dashboard />} />

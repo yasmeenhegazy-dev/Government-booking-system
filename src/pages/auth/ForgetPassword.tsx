@@ -1,107 +1,105 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.svg";
+import { sendOtpRequest } from "../../api/auth/auth";
+import { toast } from "react-toastify";
 
 export default function ForgetPassword() {
-  const [form, setForm] = useState({ nationalId: "", phone: "" });
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ nationalId: "" });
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '12px 15px', borderRadius: '12px', border: '1px solid #E2E8F0',
-    background: '#F8FAFC', outline: 'none', boxSizing: 'border-box', transition: '0.3s'
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: 'block', color: '#002B5B', fontWeight: '700', marginBottom: '5px', fontSize: '0.9rem'
-  };
-
-  const handleResetRequest = async (e: React.FormEvent) => {
+  const handleResetRequest = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:3000/auth/forget-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      const data = await sendOtpRequest(form);
 
-      const data = await res.json();
+      if (data.success) {
+        toast.success(data.message);
 
-      if (res.ok) {
-        alert("تم إرسال رمز التحقق لهاتفك بنجاح");
+        setTimeout(() => {
+          navigate("/resetpassword");
+        }, 1000);
       } else {
-        alert(data.message || "البيانات غير صحيحة");
+        toast.error(data.message);
       }
-    } catch (err) {
-      alert("خطأ في الاتصال بالسيرفر");
+    } catch (error) {
+      toast.error("حصل خطأ، حاول مرة أخرى");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', direction: 'rtl', padding: '20px' }}>
-      <div style={{ background: 'white', padding: '40px', borderRadius: '25px', boxShadow: '0 10px 30px rgba(0, 43, 91, 0.05)', border: '1px solid #F1F5F9', width: '100%', maxWidth: '420px' }}>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-5 rtl">
+      <div className="bg-white p-10 rounded-3xl shadow-lg border w-full max-w-md">
 
-        <div style={{ textAlign: 'center', marginBottom: '25px' }}>
-          <div style={{ background: '#F1F5F9', width: '70px', height: '70px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 15px' }}>
-            <img src={logo} alt="Logo" style={{ width: '45px' }} />
+        {/* Header */}
+        <div className="text-center mb-6">
+          <div className="bg-slate-100 w-[70px] h-[70px] rounded-xl flex items-center justify-center mx-auto mb-4">
+            <img src={logo} alt="Logo" className="w-11" />
           </div>
-          <h2 style={{ color: '#002B5B', fontWeight: '800', fontSize: '1.7rem', margin: '0' }}>استعادة الحساب</h2>
-          <p style={{ color: '#64748B', fontSize: '0.9rem', marginTop: '5px' }}>أدخل بياناتك لإعادة تعيين كلمة المرور</p>
+
+          <h2 className="text-[#002B5B] font-extrabold text-2xl">
+            استعادة الحساب
+          </h2>
+
+          <p className="text-slate-500 text-sm mt-1">
+            أدخل بياناتك لإعادة تعيين كلمة المرور
+          </p>
         </div>
 
-        <div style={{ background: 'rgba(197, 160, 89, 0.1)', borderRight: '4px solid #C5A059', padding: '15px', borderRadius: '10px', marginBottom: '25px', fontSize: '0.85rem', color: '#002B5B', lineHeight: '1.6', textAlign: 'right' }}>
-          <strong style={{ display: 'block', marginBottom: '5px' }}>كيف يعمل الاسترداد؟</strong>
-          سيتم إرسال رمز تحقق (OTP) لهاتفك المسجل بعد التأكد من الرقم القومي.
+        {/* Info Box */}
+        <div className="bg-[#C5A059]/10 border-r-4 border-[#C5A059] p-4 rounded-lg mb-6 text-sm text-[#002B5B] leading-relaxed text-right">
+          <strong className="block mb-1">كيف يعمل الاسترداد؟</strong>
+          سيتم إرسال رمز تحقق (OTP) لبريدك الإلكتروني بعد التأكد من الرقم القومي.
         </div>
 
-        <form onSubmit={handleResetRequest} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          
-          <div style={{ textAlign: 'right' }}>
-            <label style={labelStyle}>الرقم القومي</label>
+        <form
+          onSubmit={handleResetRequest}
+          className="flex flex-col gap-5"
+        >
+          {/* National ID */}
+          <div className="text-right">
+            <label className="block text-[#002B5B] font-bold text-sm mb-1">
+              الرقم القومي
+            </label>
             <input
               type="number"
               placeholder="14 رقم"
-              style={inputStyle}
+              className="w-full p-3 rounded-xl border bg-slate-50 outline-none"
               required
               value={form.nationalId}
-              onChange={(e) => setForm({...form, nationalId: e.target.value})}
+              onChange={(e) =>
+                setForm({ ...form, nationalId: e.target.value })
+              }
             />
           </div>
 
-          <div style={{ textAlign: 'right' }}>
-            <label style={labelStyle}>رقم الهاتف</label>
-            <input
-              type="tel"
-              placeholder="01xxxxxxxxx"
-              style={inputStyle}
-              required
-              value={form.phone}
-              onChange={(e) => setForm({...form, phone: e.target.value})}
-            />
-          </div>
-
+          {/* Button */}
           <button
             type="submit"
             disabled={loading}
-            style={{ 
-              width: '100%', padding: '14px', background: loading ? '#64748B' : '#002B5B', color: 'white', 
-              border: 'none', borderRadius: '12px', fontWeight: '700', fontSize: '1.1rem', 
-              cursor: loading ? 'not-allowed' : 'pointer', transition: '0.3s', marginTop: '10px',
-              boxShadow: '0 4px 15px rgba(0, 43, 91, 0.2)'
-            }}
+            className={`w-full py-3 rounded-xl font-bold text-lg shadow-md transition
+              ${
+                loading
+                  ? "bg-slate-400 cursor-not-allowed"
+                  : "bg-[#002B5B] text-white hover:opacity-90"
+              }
+            `}
           >
             {loading ? "جاري الإرسال..." : "إرسال رمز التحقق"}
           </button>
 
-          <div style={{ textAlign: 'center', marginTop: '10px' }}>
-            <Link to="/" style={{ color: '#64748B', fontSize: '0.9rem', textDecoration: 'none', fontWeight: '600' }}>
-               العودة لصفحة <span style={{ color: '#002B5B', fontWeight: '800' }}>تسجيل الدخول</span>
+          {/* Link */}
+          <div className="text-center text-sm text-slate-500">
+            العودة لصفحة{" "}
+            <Link to="/" className="text-[#002B5B] font-extrabold">
+              تسجيل الدخول
             </Link>
           </div>
-
         </form>
       </div>
     </div>

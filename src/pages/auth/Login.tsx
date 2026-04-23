@@ -1,127 +1,160 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.svg";
+import { loginRequest } from "../../api/auth/auth";
+import { toast } from "react-toastify";
 
 export default function Login() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [isEmailMode, setIsEmailMode] = useState(true);
+
   const [form, setForm] = useState({
     email: "",
-    password: "", 
+    password: "",
     nationalId: "",
-    role: "citizen"
   });
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e) {
     e.preventDefault();
-    
-   
-    const loginData = isEmailMode 
-      ? { email: form.email, password: form.password, role: "citizen" }
-      : { nationalId: form.nationalId, password: form.password, role: "employee" };
 
-    try {
-      const res = await fetch("http://localhost:3000/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginData),
-      });
+    const loginChoise = isEmailMode
+      ? { email: form.email, password: form.password }
+      : { nationalId: form.nationalId, password: form.password };
 
-      const data = await res.json();
+    const data = await loginRequest(loginChoise);
 
-      if (res.ok) {
-        localStorage.setItem("userToken", data.token);
-        localStorage.setItem("userRole", data.role);
-
-        console.log("تم تسجيل الدخول بنجاح كـ:", data.role);
-
-        if (data.role === "employee" || !isEmailMode) {
-          navigate("/dashboard");
-        } else {
-          navigate("/"); 
-        }
-      } else {
-        alert(data.message || "خطأ في البريد الإلكتروني أو كلمة المرور");
-      }
-    } catch (err) {
-      console.error("خطأ في الاتصال:", err);
-      alert("السيرفر غير متصل، تأكد من تشغيل الباك-إند");
+    if (data.success) {
+      toast.success(data.message);
+    } else {
+      toast.error(data.message);
     }
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '12px 15px', borderRadius: '12px', border: '1px solid #E2E8F0',
-    background: '#F8FAFC', outline: 'none', boxSizing: 'border-box'
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: 'block', color: '#002B5B', fontWeight: '700', marginBottom: '8px', fontSize: '0.9rem'
-  };
-
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', direction: 'rtl' }}>
-      <div style={{ background: 'white', padding: '40px', borderRadius: '25px', boxShadow: '0 10px 30px rgba(0, 43, 91, 0.05)', border: '1px solid #F1F5F9', width: '100%', maxWidth: '420px' }}>
-        
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <div style={{ background: '#F1F5F9', width: '80px', height: '80px', borderRadius: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 15px', border: '1px solid #E2E8F0' }}>
-            <img src={logo} alt="Logo" style={{ width: '55px' }} />
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 rtl">
+      <div className="bg-white p-10 rounded-3xl shadow-lg border w-full max-w-md">
+
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="bg-slate-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 border">
+            <img src={logo} alt="Logo" className="w-14" />
           </div>
-          <h2 style={{ color: '#002B5B', fontWeight: '800', fontSize: '1.8rem', margin: '0' }}>مرحبا بك</h2>
-          <p style={{ color: '#64748B', fontSize: '0.9rem', marginTop: '5px' }}>سجل دخولك للمتابعة</p>
+
+          <h2 className="text-[#002B5B] font-extrabold text-2xl">
+            مرحبا بك
+          </h2>
+
+          <p className="text-slate-500 text-sm mt-1">
+            سجل دخولك للمتابعة
+          </p>
         </div>
 
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ display: 'flex', background: '#F1F5F9', padding: '5px', borderRadius: '12px' }}>
+        <form onSubmit={handleLogin} className="flex flex-col gap-5">
+
+          {/* Switch */}
+          <div className="flex bg-slate-100 p-1 rounded-xl">
             <button
-              onClick={() => { setIsEmailMode(true); setForm(prev => ({...prev, role: "citizen"})); }}
               type="button"
-              style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: '600', transition: '0.3s', background: isEmailMode ? 'white' : 'transparent', color: isEmailMode ? '#002B5B' : '#64748B', boxShadow: isEmailMode ? '0 4px 10px rgba(0,0,0,0.05)' : 'none' }}
+              onClick={() => setIsEmailMode(true)}
+              className={`flex-1 py-2 rounded-lg font-semibold transition
+                ${
+                  isEmailMode
+                    ? "bg-white text-[#002B5B] shadow"
+                    : "text-slate-500"
+                }`}
             >
               البريد الالكتروني
             </button>
+
             <button
-              onClick={() => { setIsEmailMode(false); setForm(prev => ({...prev, role: "employee"})); }}
               type="button"
-              style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: '600', transition: '0.3s', background: !isEmailMode ? 'white' : 'transparent', color: !isEmailMode ? '#002B5B' : '#64748B', boxShadow: !isEmailMode ? '0 4px 10px rgba(0,0,0,0.05)' : 'none' }}
+              onClick={() => setIsEmailMode(false)}
+              className={`flex-1 py-2 rounded-lg font-semibold transition
+                ${
+                  !isEmailMode
+                    ? "bg-white text-[#002B5B] shadow"
+                    : "text-slate-500"
+                }`}
             >
               رقم الهوية
             </button>
           </div>
 
+          {/* Email / National ID */}
           {isEmailMode ? (
-            <div style={{ textAlign: 'right' }}>
-              <label style={labelStyle}>البريد الالكتروني</label>
-              <input onChange={handleChange} value={form.email} type="email" name="email" placeholder="example@email.com" style={inputStyle} required />
+            <div className="text-right">
+              <label className="block text-[#002B5B] font-bold text-sm mb-1">
+                البريد الالكتروني
+              </label>
+              <input
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                type="email"
+                placeholder="example@email.com"
+                className="w-full p-3 rounded-xl border bg-slate-50 outline-none"
+                required
+              />
             </div>
           ) : (
-            <div style={{ textAlign: 'right' }}>
-              <label style={labelStyle}>الرقم القومي / رقم الهوية</label>
-              <input onChange={handleChange} value={form.nationalId} type="number" name="nationalId" placeholder="ادخل الرقم القومي" style={inputStyle} required />
+            <div className="text-right">
+              <label className="block text-[#002B5B] font-bold text-sm mb-1">
+                الرقم القومي / رقم الهوية
+              </label>
+              <input
+                name="nationalId"
+                value={form.nationalId}
+                onChange={handleChange}
+                type="number"
+                placeholder="ادخل الرقم القومي"
+                className="w-full p-3 rounded-xl border bg-slate-50 outline-none"
+                required
+              />
             </div>
           )}
 
-          <div style={{ textAlign: 'right' }}>
-            <label style={labelStyle}>كلمة المرور</label>
-            <input onChange={handleChange} value={form.password} type="password" name="password" placeholder="********" style={inputStyle} required />
+          {/* Password */}
+          <div className="text-right">
+            <label className="block text-[#002B5B] font-bold text-sm mb-1">
+              كلمة المرور
+            </label>
+            <input
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              type="password"
+              placeholder="********"
+              className="w-full p-3 rounded-xl border bg-slate-50 outline-none"
+              required
+            />
           </div>
 
-          <div style={{ textAlign: 'left' }}>
-            <Link to="/forget-password" style={{ color: '#C5A059', fontSize: '0.85rem', fontWeight: '600', textDecoration: 'none' }}>
+          {/* Forget Password */}
+          <div className="text-left">
+            <Link
+              to="/forgetpassword"
+              className="text-[#C5A059] text-sm font-semibold"
+            >
               نسيت كلمة المرور؟
             </Link>
           </div>
 
-          <button type="submit" style={{ width: '100%', padding: '14px', background: '#002B5B', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '700', fontSize: '1.1rem', cursor: 'pointer', transition: '0.3s', boxShadow: '0 4px 15px rgba(0, 43, 91, 0.2)' }}>
+          {/* Button */}
+          <button
+            type="submit"
+            className="w-full py-3 bg-[#002B5B] text-white rounded-xl font-bold text-lg shadow-md hover:opacity-90 transition"
+          >
             تسجيل الدخول
           </button>
 
-          <div style={{ textAlign: 'center', fontSize: '0.9rem', color: '#64748B' }}>
-            <span>ليس لديك حساب؟ </span>
-            <Link to="/register" style={{ color: '#002B5B', fontWeight: '700', textDecoration: 'none', marginRight: '5px' }}>
+          {/* Register */}
+          <div className="text-center text-sm text-slate-500">
+            ليس لديك حساب؟
+            <Link to="/register" className="text-[#002B5B] font-bold mr-1">
               إنشاء حساب جديد
             </Link>
           </div>
