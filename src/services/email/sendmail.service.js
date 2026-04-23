@@ -6,6 +6,7 @@ export async function sendMail({to , subject , html}) {
         port:587,
         auth:{
             user:"al3sar.2016@gmail.com",
+            pass:"drfw aaep zprv gbgk"
         }
     });
 
@@ -14,7 +15,7 @@ export async function sendMail({to , subject , html}) {
         to,
         subject,
         html,
-        attachments:"",
+    
     });
 }
 
