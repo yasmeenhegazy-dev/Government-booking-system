@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './index.css'
 
 function App() {
@@ -15,29 +15,51 @@ function App() {
     الأدوار: []
   })
 
+  useEffect(() => {
+    fetch('http://localhost:5000/api/data')
+      .then(response => response.json())
+      .then(backendData => {
+        setData(backendData);
+      })
+      .catch(error => {
+        setAlertMsg('فشل الاتصال بالخادم عند جلب البيانات');
+        console.log('حدث خطأ:', error);
+      });
+  }, []); 
+  
   function addItem() {
     if (value === '') {
       setAlertMsg('الرجاء إدخال البيانات')
       return
     }
 
-    let arr = data[tab]
-
-    //منع تكرار بسيط
+    let arr = [...data[tab]]
     if (arr.includes(value)) {
       setAlertMsg('تم إضافته من قبل')
       return
     }
-
-    arr.push(value)
-
-    setData({
-      ...data,
-      [tab]: arr
+    const newInfo = {
+      category: tab,
+      item: value
+    };
+    fetch('http://localhost:5000/api/data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newInfo)
     })
-
-    setValue('')
-    setShow(false)
+      .then(response => response.json())
+      .then(updatedData => {
+        //تحديث البيانات في الصفحة 
+        setData(updatedData);
+        setValue('');
+        setShow(false);
+      })
+      .catch(error => {
+        setAlertMsg('فشل الاتصال بالخادم أثناء الحفظ، يرجى التأكد من تشغيله');
+        console.log('حدث خطأ أثناء الحفظ:', error);
+      });
   }
 
   let list = data[tab].filter((item) => {
@@ -114,11 +136,6 @@ function App() {
                 placeholder={`أدخل بيانات ${tab}...`}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    addItem();
-                  }
-                }}
               />
             </div>
 
