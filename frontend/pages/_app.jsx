@@ -1,0 +1,13 @@
+import Layout from "../components/Layout";
+import { LanguageProvider } from "../lib/i18n";
+import "../styles/globals.css";
+
+export default function App({ Component, pageProps }) {
+  return (
+    <LanguageProvider>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </LanguageProvider>
+  );
+}
