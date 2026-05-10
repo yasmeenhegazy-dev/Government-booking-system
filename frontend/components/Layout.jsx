@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Building2 } from "lucide-react";
+import { Building2, UserCircle, ScanLine } from "lucide-react";
 import { useTranslation } from "../lib/i18n";
 
 export default function Layout({ children }) {
@@ -23,7 +23,7 @@ export default function Layout({ children }) {
               </div>
             </Link>
 
-            <nav className="flex items-center gap-4 sm:gap-6 text-sm">
+            <nav className="flex items-center gap-3 sm:gap-5 text-sm">
               <Link
                 href="/"
                 className={`hidden sm:inline transition ${
@@ -33,9 +33,20 @@ export default function Layout({ children }) {
                 {t("nav.services")}
               </Link>
               <span className="hidden sm:inline text-white/30">|</span>
-              <span className="hidden md:inline text-white/70 text-xs">
-                {t("nav.tagline")}
-              </span>
+              <Link
+                href="/citizen/dashboard"
+                className="inline-flex items-center gap-1.5 text-white/90 hover:text-gold-300 transition border border-white/20 hover:border-gold-300 rounded-lg px-3 py-1.5"
+              >
+                <UserCircle className="h-4 w-4" strokeWidth={1.75} />
+                <span>{t("nav.dashboard")}</span>
+              </Link>
+              <Link
+                href="/employee/login"
+                className="hidden md:inline-flex items-center gap-1.5 text-gold-300 hover:text-white transition border border-gold-500/40 hover:border-gold-300 rounded-lg px-3 py-1.5"
+              >
+                <ScanLine className="h-4 w-4" strokeWidth={1.75} />
+                <span>{t("nav.employee")}</span>
+              </Link>
             </nav>
           </div>
         </div>

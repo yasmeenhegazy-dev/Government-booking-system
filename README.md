@@ -105,6 +105,22 @@ Frontend runs on **http://localhost:3000**
 | GET    | /api/branches?serviceId=ID | Branches for a service   |
 | GET    | /api/slots?branchId=ID    | Available slots for branch |
 | POST   | /api/appointments    | Create a booking               |
+| GET    | /api/appointments/user?nationalId=NID | Citizen's appointments  |
+| GET    | /api/appointments/reference/:ref | Lookup appointment by reference |
+| PUT    | /api/appointments/:id/cancel | Cancel an appointment (owner only) |
+
+## Citizen Dashboard
+
+After booking, the citizen can access their dashboard at `/citizen/dashboard`:
+
+- **Dashboard** — overview with stats and upcoming bookings
+- **Appointments** — full list with filters (all / upcoming / completed / cancelled) and cancel action
+- **Confirmation (QR)** — QR code for the upcoming booking, scanned by the office staff
+- **Profile** — personal details and activity summary
+
+The session is keyed off the national ID (no password). The flow is:
+booking → success page → "Go to my dashboard" → citizen area.
+Citizens who already booked can re-enter via `/citizen/login` using their national ID.
 
 ### POST /api/appointments Body
 
