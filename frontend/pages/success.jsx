@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import {
   CheckCircle,
@@ -8,9 +8,11 @@ import {
   User,
   Printer,
   Plus,
+  LayoutDashboard,
 } from "lucide-react";
 import { useTranslation } from "../lib/i18n";
 import ErrorMessage from "../components/ErrorMessage";
+import { saveCitizenSession } from "../lib/citizenAuth";
 
 export default function SuccessPage() {
   const router = useRouter();
@@ -24,7 +26,23 @@ export default function SuccessPage() {
     slotStart,
     slotEnd,
     citizenName,
+    citizenEmail,
+    citizenPhone,
+    nationalId,
   } = router.query;
+
+  // Auto-create the citizen session right after a successful booking,
+  // so the user can jump straight into their dashboard.
+  useEffect(() => {
+    if (nationalId && citizenName) {
+      saveCitizenSession({
+        nationalId,
+        citizenName,
+        citizenEmail: citizenEmail || "",
+        citizenPhone: citizenPhone || "",
+      });
+    }
+  }, [nationalId, citizenName, citizenEmail, citizenPhone]);
 
   const formattedDate = useMemo(() => {
     if (!slotDate) return "";
@@ -79,8 +97,15 @@ export default function SuccessPage() {
 
       <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center print:hidden">
         <button
-          onClick={() => router.push("/")}
+          onClick={() => router.push("/citizen/dashboard")}
           className="btn-primary inline-flex items-center justify-center gap-2"
+        >
+          <LayoutDashboard className="h-4 w-4" strokeWidth={1.75} />
+          {t("success.dashboard")}
+        </button>
+        <button
+          onClick={() => router.push("/")}
+          className="btn-secondary inline-flex items-center justify-center gap-2"
         >
           <Plus className="h-4 w-4" strokeWidth={1.75} />
           {t("success.newBooking")}

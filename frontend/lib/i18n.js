@@ -4,6 +4,8 @@ const TRANSLATIONS = {
   "app.title": "بوابة الحجز الحكومية",
   "app.subtitle": "بوابة خدمات المواطنين",
   "nav.services": "الخدمات",
+  "nav.dashboard": "حسابي",
+  "nav.employee": "دخول الموظفين",
   "nav.tagline": "احجز موعدك إلكترونياً",
   "footer.rights": "بوابة الحجز الحكومية. جميع الحقوق محفوظة.",
   "breadcrumb.services": "الخدمات",
@@ -78,6 +80,7 @@ const TRANSLATIONS = {
   "success.note": "تم إرسال تأكيد إلى بريدك الإلكتروني. يرجى الحضور قبل الموعد بـ 15 دقيقة ومعك بطاقة الرقم القومي.",
   "success.newBooking": "حجز موعد جديد",
   "success.print": "طباعة التأكيد",
+  "success.dashboard": "الانتقال إلى لوحة حسابي",
 
   "common.retry": "حاول مجدداً",
   "common.loading": "جاري التحميل...",

@@ -110,6 +110,9 @@ export default function ConfirmPage() {
           slotStart: appt.slotId?.startTime || slotStart,
           slotEnd: appt.slotId?.endTime || slotEnd,
           citizenName: appt.citizenName,
+          citizenEmail: appt.citizenEmail,
+          citizenPhone: appt.citizenPhone,
+          nationalId: appt.nationalId,
         },
       });
     } catch (err) {

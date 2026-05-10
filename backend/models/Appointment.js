@@ -42,12 +42,25 @@ const appointmentSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["confirmed", "cancelled", "completed"],
+      enum: ["confirmed", "cancelled", "completed", "verified"],
       default: "confirmed",
     },
     bookingReference: {
       type: String,
       unique: true,
+    },
+    cancelledAt: {
+      type: Date,
+      default: null,
+    },
+    cancellationReason: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    verifiedAt: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }

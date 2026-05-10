@@ -34,7 +34,7 @@ app.use(
       callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT"],
     allowedHeaders: ["Content-Type"],
   })
 );
@@ -56,7 +56,7 @@ const globalLimiter = rateLimit({
 });
 app.use("/api", globalLimiter);
 
-// Stricter rate limit for booking endpoint (prevent spam bookings)
+// Stricter rate limit for booking creation only (prevent spam bookings)
 const bookingLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
@@ -64,7 +64,11 @@ const bookingLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use("/api/appointments", bookingLimiter);
+app.use("/api/appointments", (req, res, next) => {
+  // Only POST creates new bookings — read/cancel use the global limiter
+  if (req.method === "POST" && req.path === "/") return bookingLimiter(req, res, next);
+  next();
+});
 
 // --------------- Routes ---------------
 
@@ -79,7 +83,15 @@ app.get("/", (req, res) => {
       services: "GET /api/services",
       branches: "GET /api/branches?serviceId=ID",
       slots: "GET /api/slots?branchId=ID",
-      appointments: "POST /api/appointments",
+      createAppointment: "POST /api/appointments",
+      userAppointments: "GET /api/appointments/user?nationalId=NID",
+      appointmentByRef: "GET /api/appointments/reference/:ref",
+      cancelAppointment: "PUT /api/appointments/:id/cancel",
+      todayAppointments: "GET /api/appointments/today?branchId=ID",
+      verifyQR: "POST /api/appointments/verify-qr",
+      updateStatus: "PUT /api/appointments/:id/status",
+      employeeLogin: "POST /api/employees/login",
+      employeeProfile: "GET /api/employees/:id",
     },
   });
 });
@@ -94,6 +106,7 @@ app.use("/api/services", require("./routes/services"));
 app.use("/api/branches", require("./routes/branches"));
 app.use("/api/slots", require("./routes/slots"));
 app.use("/api/appointments", require("./routes/appointments"));
+app.use("/api/employees", require("./routes/employees"));
 
 // --------------- Error Handling ---------------
 
