@@ -312,6 +312,93 @@ router.put(
 
 // =================== Employee-facing endpoints ===================
 
+// GET /api/appointments/by-date?date=YYYY-MM-DD
+// Returns every booking on a specific date across all branches —
+// used by the daily review page so any citizen booking shows up.
+router.get(
+  "/by-date",
+  [query("date").optional().isISO8601().withMessage("Invalid date")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+    try {
+      const { start, end } = dayWindow(req.query.date);
+      const slots = await Slot.find({ date: { $gte: start, $lt: end } }).select("_id");
+      const slotIds = slots.map((s) => s._id);
+      const appointments = await Appointment.find({ slotId: { $in: slotIds } })
+        .populate("serviceId", "name")
+        .populate("branchId", "name city")
+        .populate("slotId", "date startTime endTime")
+        .sort({ "slotId.startTime": 1, createdAt: 1 });
+
+      const stats = appointments.reduce(
+        (acc, a) => {
+          acc.total += 1;
+          if (a.status === "confirmed") acc.pending += 1;
+          else if (a.status === "verified") acc.verified += 1;
+          else if (a.status === "completed") acc.completed += 1;
+          else if (a.status === "cancelled") acc.cancelled += 1;
+          return acc;
+        },
+        { total: 0, pending: 0, verified: 0, completed: 0, cancelled: 0 }
+      );
+
+      // Echo back the local day (YYYY-MM-DD from local-midnight start)
+      const y = start.getFullYear();
+      const m = String(start.getMonth() + 1).padStart(2, "0");
+      const d = String(start.getDate()).padStart(2, "0");
+
+      res.json({
+        success: true,
+        date: `${y}-${m}-${d}`,
+        stats,
+        count: appointments.length,
+        data: appointments,
+      });
+    } catch (error) {
+      console.error("Fetch by-date error:", error.message);
+      res.status(500).json({ success: false, message: "تعذر جلب حجوزات التاريخ" });
+    }
+  }
+);
+
+// GET /api/appointments/all-upcoming
+// Returns every upcoming booking across all branches so the employee
+// dashboard can immediately surface fresh citizen bookings, regardless
+// of which physical branch they targeted.
+router.get("/all-upcoming", async (_req, res) => {
+  try {
+    const { start } = dayWindow();
+    const slots = await Slot.find({ date: { $gte: start } }).select("_id");
+    const slotIds = slots.map((s) => s._id);
+
+    const appointments = await Appointment.find({ slotId: { $in: slotIds } })
+      .populate("serviceId", "name")
+      .populate("branchId", "name city")
+      .populate("slotId", "date startTime endTime")
+      .sort({ "slotId.date": 1, "slotId.startTime": 1 });
+
+    const stats = appointments.reduce(
+      (acc, a) => {
+        acc.total += 1;
+        if (a.status === "confirmed") acc.pending += 1;
+        else if (a.status === "verified") acc.verified += 1;
+        else if (a.status === "completed") acc.completed += 1;
+        else if (a.status === "cancelled") acc.cancelled += 1;
+        return acc;
+      },
+      { total: 0, pending: 0, verified: 0, completed: 0, cancelled: 0 }
+    );
+
+    res.json({ success: true, stats, count: appointments.length, data: appointments });
+  } catch (error) {
+    console.error("Fetch all upcoming error:", error.message);
+    res.status(500).json({ success: false, message: "تعذر جلب الحجوزات القادمة" });
+  }
+});
+
 // GET /api/appointments/today?branchId=X&date=YYYY-MM-DD
 // Returns today's appointments at a given branch (employee daily review).
 router.get(
@@ -422,21 +509,8 @@ router.post(
           .json({ success: false, code: "NOT_FOUND", message: "الحجز غير موجود — تحقق من الرمز" });
       }
 
-      // Branch scope check — match by branch name so all same-named
-      // branches (one per service in the seed) count as one location.
-      const peerBranchIds = (await resolveSameNamedBranchIds(employee.branchId)).map((id) =>
-        id.toString()
-      );
-      const apptBranchId =
-        appointment.branchId?._id?.toString() || appointment.branchId?.toString();
-      if (!peerBranchIds.includes(apptBranchId)) {
-        return res.status(403).json({
-          success: false,
-          code: "WRONG_BRANCH",
-          message: "هذا الحجز ليس في فرعك",
-          data: appointment,
-        });
-      }
+      // Employees can verify any booking, from any branch — the system runs
+      // as a single check-in counter rather than branch-scoped.
 
       // National ID cross-check (defense-in-depth — if QR was tampered with)
       if (qrPayload.nid && qrPayload.nid !== appointment.nationalId) {
@@ -518,15 +592,7 @@ router.put(
         return res.status(404).json({ success: false, message: "الحجز غير موجود" });
       }
 
-      const peerBranchIds = (await resolveSameNamedBranchIds(employee.branchId)).map((id) =>
-        id.toString()
-      );
-      const apptBranchId = appointment.branchId.toString();
-      if (!peerBranchIds.includes(apptBranchId)) {
-        return res
-          .status(403)
-          .json({ success: false, message: "هذا الحجز ليس في فرعك" });
-      }
+      // Employees can update any booking — no branch scope.
 
       appointment.status = status;
       if (status === "verified" && !appointment.verifiedAt) {

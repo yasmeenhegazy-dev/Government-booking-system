@@ -46,10 +46,12 @@ app.use(express.urlencoded({ extended: false, limit: "10kb" }));
 // Prevent HTTP Parameter Pollution
 app.use(hpp());
 
-// Global rate limiter - 100 requests per 15 minutes per IP
+// Global rate limiter - 1000 requests per 15 minutes per IP.
+// Bumped up from 100 to accommodate the employee dashboard's polling
+// (auto-refresh hits 2 GET endpoints every 15s while the page is open).
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 1000,
   message: { success: false, message: "Too many requests, please try again later." },
   standardHeaders: true,
   legacyHeaders: false,
@@ -80,6 +82,10 @@ app.get("/", (req, res) => {
     status: "running",
     endpoints: {
       health: "GET /api/health",
+      register: "POST /api/auth/register",
+      login: "POST /api/auth/login",
+      sendOtp: "POST /api/auth/sendOtp",
+      resetPassword: "POST /api/auth/resetpassword",
       services: "GET /api/services",
       branches: "GET /api/branches?serviceId=ID",
       slots: "GET /api/slots?branchId=ID",
@@ -90,7 +96,6 @@ app.get("/", (req, res) => {
       todayAppointments: "GET /api/appointments/today?branchId=ID",
       verifyQR: "POST /api/appointments/verify-qr",
       updateStatus: "PUT /api/appointments/:id/status",
-      employeeLogin: "POST /api/employees/login",
       employeeProfile: "GET /api/employees/:id",
     },
   });
@@ -102,6 +107,8 @@ app.get("/api/health", (req, res) => {
 });
 
 // API Routes
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/admin", require("./routes/admin"));
 app.use("/api/services", require("./routes/services"));
 app.use("/api/branches", require("./routes/branches"));
 app.use("/api/slots", require("./routes/slots"));

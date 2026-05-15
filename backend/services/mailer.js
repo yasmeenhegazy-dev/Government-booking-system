@@ -49,8 +49,8 @@ function buildHtml(appt) {
 <body style="margin:0;padding:24px;background:#F8FAFC;font-family:Tajawal,Arial,sans-serif;color:#1E293B;direction:rtl;">
   <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
     <tr>
-      <td style="background:#0A2540;padding:24px 28px;color:#ffffff;">
-        <div style="display:inline-block;width:40px;height:40px;background:#C5A059;border-radius:8px;text-align:center;line-height:40px;font-weight:bold;color:#0A2540;font-size:20px;vertical-align:middle;">ح</div>
+      <td style="background:#002B5B;padding:24px 28px;color:#ffffff;">
+        <div style="display:inline-block;width:40px;height:40px;background:#C5A059;border-radius:8px;text-align:center;line-height:40px;font-weight:bold;color:#002B5B;font-size:20px;vertical-align:middle;">ح</div>
         <span style="display:inline-block;margin-right:12px;vertical-align:middle;">
           <div style="font-size:18px;font-weight:bold;line-height:1.2;">بوابة الحجز الحكومية</div>
           <div style="font-size:12px;color:#C5A059;">بوابة خدمات المواطنين</div>
@@ -60,7 +60,7 @@ function buildHtml(appt) {
     <tr>
       <td style="padding:32px 28px 8px;text-align:center;">
         <div style="display:inline-block;width:64px;height:64px;background:#dcfce7;border-radius:50%;line-height:64px;font-size:32px;color:#16A34A;">✓</div>
-        <h1 style="margin:16px 0 4px;font-size:22px;color:#0A2540;">تم تأكيد حجزك بنجاح</h1>
+        <h1 style="margin:16px 0 4px;font-size:22px;color:#002B5B;">تم تأكيد حجزك بنجاح</h1>
         <p style="margin:0;color:#64748B;font-size:14px;">احتفظ برقم الحجز التالي للرجوع إليه عند الحضور</p>
       </td>
     </tr>
@@ -68,7 +68,7 @@ function buildHtml(appt) {
       <td style="padding:16px 28px 0;text-align:center;">
         <div style="display:inline-block;background:#F8FAFC;border:1px solid #C5A059;border-radius:12px;padding:14px 24px;">
           <div style="font-size:11px;color:#64748B;">رقم الحجز</div>
-          <div style="font-size:22px;font-weight:bold;color:#0A2540;letter-spacing:2px;direction:ltr;">${appt.bookingReference}</div>
+          <div style="font-size:22px;font-weight:bold;color:#002B5B;letter-spacing:2px;direction:ltr;">${appt.bookingReference}</div>
         </div>
       </td>
     </tr>
@@ -93,7 +93,7 @@ function buildHtml(appt) {
       </td>
     </tr>
     <tr>
-      <td style="background:#0A2540;color:#94A3B8;font-size:12px;text-align:center;padding:16px;">
+      <td style="background:#002B5B;color:#94A3B8;font-size:12px;text-align:center;padding:16px;">
         © ${new Date().getFullYear()} بوابة الحجز الحكومية. جميع الحقوق محفوظة.
       </td>
     </tr>
@@ -105,7 +105,7 @@ function buildHtml(appt) {
 function row(label, value, isLtr = false) {
   return `<tr>
     <td style="padding:10px 14px;border-bottom:1px solid #E2E8F0;font-size:12px;color:#64748B;width:35%;">${label}</td>
-    <td style="padding:10px 14px;border-bottom:1px solid #E2E8F0;font-size:14px;color:#0A2540;font-weight:600;${isLtr ? "direction:ltr;text-align:right;" : ""}">${value}</td>
+    <td style="padding:10px 14px;border-bottom:1px solid #E2E8F0;font-size:14px;color:#002B5B;font-weight:600;${isLtr ? "direction:ltr;text-align:right;" : ""}">${value}</td>
   </tr>`;
 }
 
@@ -151,4 +151,40 @@ async function sendBookingConfirmation(appt) {
   }
 }
 
-module.exports = { sendBookingConfirmation };
+async function sendOtpEmail({ to, otp }) {
+  const t = getTransporter();
+  if (!t) {
+    console.warn("[mailer] SMTP not configured — OTP not sent to", to, "code:", otp);
+    return { sent: false, reason: "smtp-not-configured" };
+  }
+  const from = process.env.SMTP_FROM || `"بوابة الحجز الحكومية" <${process.env.SMTP_USER}>`;
+  const html = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<body style="margin:0;padding:24px;background:#F8FAFC;font-family:Tajawal,Arial,sans-serif;color:#1E293B;direction:rtl;">
+  <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
+    <tr><td style="background:#002B5B;padding:20px 28px;color:#fff;font-weight:bold;">بوابة الحجز الحكومية</td></tr>
+    <tr><td style="padding:32px 28px;text-align:center;">
+      <h1 style="margin:0 0 8px;color:#002B5B;">رمز التحقق</h1>
+      <p style="color:#64748B;margin:0 0 24px;">استخدم الرمز التالي لإعادة تعيين كلمة المرور. الرمز صالح لمدة 5 دقائق.</p>
+      <div style="display:inline-block;background:#F8FAFC;border:1px solid #C5A059;border-radius:12px;padding:16px 32px;font-size:32px;font-weight:bold;color:#002B5B;letter-spacing:8px;direction:ltr;">${otp}</div>
+    </td></tr>
+    <tr><td style="background:#002B5B;color:#94A3B8;font-size:12px;text-align:center;padding:14px;">© ${new Date().getFullYear()} بوابة الحجز الحكومية</td></tr>
+  </table>
+</body></html>`;
+  try {
+    const info = await t.sendMail({
+      from,
+      to,
+      subject: "رمز التحقق لإعادة تعيين كلمة المرور",
+      text: `رمز التحقق الخاص بك هو: ${otp}\nصالح لمدة 5 دقائق.`,
+      html,
+    });
+    console.log("[mailer] OTP sent to", to, "messageId:", info.messageId);
+    return { sent: true, messageId: info.messageId };
+  } catch (err) {
+    console.error("[mailer] OTP send failed:", err.message);
+    return { sent: false, reason: err.message };
+  }
+}
+
+module.exports = { sendBookingConfirmation, sendOtpEmail };

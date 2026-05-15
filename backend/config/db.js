@@ -59,8 +59,6 @@ async function seedDatabase() {
   const existingServices = await Service.countDocuments();
   if (existingServices > 0) {
     console.log("Database already seeded — skipping core seed.");
-    // Always run employee seed — it's idempotent (skips existing codes)
-    // so new branch assignments get added on the next restart.
     await seedEmployees();
     return;
   }
@@ -124,41 +122,156 @@ async function seedDatabase() {
   console.log("Database seeded successfully!");
 }
 
-async function seedEmployees() {
+// eslint-disable-next-line no-unused-vars
+async function seedDemoAppointments_DISABLED() {
+  const Appointment = require("../models/Appointment");
+  const Slot = require("../models/Slot");
   const Branch = require("../models/Branch");
-  const Employee = require("../models/Employee");
 
-  // One employee per distinct branch *name* (since branches repeat across services).
-  // Idempotent: only inserts missing codes, so re-running adds new ones safely.
-  const ASSIGNMENTS = [
-    { code: "EMP-001", name: "منة فرحاتي", email: "menna.farhati@gov.eg", role: "employee", branchName: "المقر الرئيسي" },
-    { code: "EMP-002", name: "أحمد علي", email: "ahmed.ali@gov.eg", role: "manager", branchName: "المقر الرئيسي" },
-    { code: "EMP-003", name: "سارة محمود", email: "sara.mahmoud@gov.eg", role: "employee", branchName: "مركز خدمات الجيزة" },
-    { code: "EMP-004", name: "ليلى إبراهيم", email: "layla.ibrahim@gov.eg", role: "employee", branchName: "فرع شمال الدلتا" },
-    { code: "EMP-005", name: "ياسين عمر", email: "yassin.omar@gov.eg", role: "manager", branchName: "الفرع الإقليمي" },
+  const branches = await Branch.find({ name: "المقر الرئيسي" });
+  if (branches.length === 0) return;
+  const branchIds = branches.map((b) => b._id);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // Skip only if today already has appointments at this branch.
+  const todaySlotIds = await Slot.find({
+    branchId: { $in: branchIds },
+    date: { $gte: today, $lt: tomorrow },
+  }).distinct("_id");
+  const existingToday = await Appointment.countDocuments({
+    slotId: { $in: todaySlotIds },
+  });
+  console.log(`[demo-seed] today appts at المقر الرئيسي: ${existingToday}`);
+  if (existingToday > 0) return;
+
+  let slots = await Slot.find({
+    branchId: { $in: branchIds },
+    date: { $gte: today, $lt: tomorrow },
+    bookedCount: { $lt: 3 },
+  }).limit(5);
+
+  // No slots for today → create a small set so the dashboard has data.
+  if (slots.length === 0) {
+    const times = [
+      { start: "09:00", end: "09:30" },
+      { start: "10:00", end: "10:30" },
+      { start: "11:00", end: "11:30" },
+      { start: "13:00", end: "13:30" },
+    ];
+    const newSlots = branchIds.flatMap((bid) =>
+      times.map((t) => ({
+        branchId: bid,
+        date: today,
+        startTime: t.start,
+        endTime: t.end,
+        capacity: 3,
+        bookedCount: 0,
+        isActive: true,
+      }))
+    );
+    await Slot.insertMany(newSlots);
+    slots = await Slot.find({
+      branchId: { $in: branchIds },
+      date: { $gte: today, $lt: tomorrow },
+      bookedCount: { $lt: 3 },
+    }).limit(5);
+    console.log(`Created ${newSlots.length} today slots at المقر الرئيسي.`);
+  }
+
+  if (slots.length === 0) {
+    console.log("Could not seed demo appointments — no slots available.");
+    return;
+  }
+
+  const DEMO = [
+    { name: "محمد إبراهيم", email: "mohamed.demo@example.com", phone: "01012345678", nid: "29501010012001" },
+    { name: "فاطمة عبد الله", email: "fatma.demo@example.com", phone: "01112345678", nid: "29501010012002" },
+    { name: "خالد سعيد", email: "khaled.demo@example.com", phone: "01212345678", nid: "29501010012003" },
+    { name: "نور أحمد", email: "noor.demo@example.com", phone: "01512345678", nid: "29501010012004" },
   ];
 
   let added = 0;
-  for (const a of ASSIGNMENTS) {
-    const existing = await Employee.findOne({ employeeCode: a.code });
-    if (existing) continue;
-    const branch = await Branch.findOne({ name: a.branchName });
-    if (!branch) continue;
-    await Employee.create({
-      employeeCode: a.code,
-      name: a.name,
-      email: a.email,
-      role: a.role,
-      branchId: branch._id,
+  for (let i = 0; i < Math.min(DEMO.length, slots.length); i++) {
+    const slot = slots[i];
+    const d = DEMO[i];
+    await Appointment.create({
+      serviceId: (await Branch.findById(slot.branchId)).serviceId,
+      branchId: slot.branchId,
+      slotId: slot._id,
+      citizenName: d.name,
+      citizenEmail: d.email,
+      citizenPhone: d.phone,
+      nationalId: d.nid,
     });
+    await Slot.findByIdAndUpdate(slot._id, { $inc: { bookedCount: 1 } });
     added += 1;
   }
 
   if (added > 0) {
-    console.log(`Seeded ${added} new employees. Total codes available:`);
+    console.log(`Seeded ${added} demo appointments for today at المقر الرئيسي.`);
+  }
+}
+
+async function seedEmployees() {
+  const Branch = require("../models/Branch");
+  const Employee = require("../models/Employee");
+  const User = require("../models/User");
+
+  // One employee per distinct branch *name* (since branches repeat across services).
+  // Idempotent: only inserts missing codes, so re-running adds new ones safely.
+  // nationalId + password let the same person log in through /api/auth/login.
+  const ASSIGNMENTS = [
+    { code: "EMP-001", firstName: "منة", lastName: "فرحاتي", email: "menna.farhati@gov.eg", nationalId: "30001010100001", role: "employee", branchName: "المقر الرئيسي" },
+    { code: "EMP-002", firstName: "أحمد", lastName: "علي", email: "ahmed.ali@gov.eg", nationalId: "30001010100002", role: "manager", branchName: "المقر الرئيسي" },
+    { code: "EMP-003", firstName: "سارة", lastName: "محمود", email: "sara.mahmoud@gov.eg", nationalId: "30001010100003", role: "employee", branchName: "مركز خدمات الجيزة" },
+    { code: "EMP-004", firstName: "ليلى", lastName: "إبراهيم", email: "layla.ibrahim@gov.eg", nationalId: "30001010100004", role: "employee", branchName: "فرع شمال الدلتا" },
+    { code: "EMP-005", firstName: "ياسين", lastName: "عمر", email: "yassin.omar@gov.eg", nationalId: "30001010100005", role: "manager", branchName: "الفرع الإقليمي" },
+  ];
+
+  const DEFAULT_PASSWORD = "Employee@123";
+
+  let addedEmployees = 0;
+  let addedUsers = 0;
+  for (const a of ASSIGNMENTS) {
+    const branch = await Branch.findOne({ name: a.branchName });
+    if (!branch) continue;
+
+    const existingEmp = await Employee.findOne({ employeeCode: a.code });
+    if (!existingEmp) {
+      await Employee.create({
+        employeeCode: a.code,
+        name: `${a.firstName} ${a.lastName}`,
+        email: a.email,
+        role: a.role === "manager" ? "manager" : "employee",
+        branchId: branch._id,
+      });
+      addedEmployees += 1;
+    }
+
+    const existingUser = await User.findOne({ email: a.email });
+    if (!existingUser) {
+      await User.create({
+        firstName: a.firstName,
+        lastName: a.lastName,
+        email: a.email,
+        password: DEFAULT_PASSWORD,
+        nationalId: a.nationalId,
+        role: "employee",
+      });
+      addedUsers += 1;
+    }
+  }
+
+  if (addedEmployees > 0 || addedUsers > 0) {
+    console.log(`Seeded ${addedEmployees} employees and ${addedUsers} user accounts.`);
+    console.log(`Default employee login password: ${DEFAULT_PASSWORD}`);
     const all = await Employee.find().populate("branchId", "name").sort({ employeeCode: 1 });
     all.forEach((e) =>
-      console.log(`  • ${e.employeeCode} — ${e.name} @ ${e.branchId?.name || "?"} (${e.role})`)
+      console.log(`  • ${e.employeeCode} — ${e.name} (${e.email}) @ ${e.branchId?.name || "?"} (${e.role})`)
     );
   }
 }
