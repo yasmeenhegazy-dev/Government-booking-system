@@ -54,3 +54,6 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Local mongodb-memory-server data (dev only)
+backend/data/

@@ -1,0 +1,14 @@
+{
+  "name": "government-booking-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Root orchestration for Railway / Nixpacks deploy. Local devs still cd into backend/ or frontend/.",
+  "scripts": {
+    "postinstall": "npm --prefix backend install && npm --prefix frontend install --include=dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix backend start"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

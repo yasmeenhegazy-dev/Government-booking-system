@@ -1,7 +1,6 @@
 const path = require("path");
 const fs = require("fs");
 const mongoose = require("mongoose");
-const { MongoMemoryServer } = require("mongodb-memory-server");
 
 // Persistent local data directory — survives server restarts.
 // Using mongodb-memory-server's bundled binary so the user doesn't need
@@ -12,23 +11,33 @@ let mongod;
 
 const connectDB = async () => {
   try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
+    let uri;
+
+    if (process.env.MONGODB_URI) {
+      uri = process.env.MONGODB_URI;
+      console.log("Connecting to MongoDB via MONGODB_URI...");
+    } else {
+      const { MongoMemoryServer } = require("mongodb-memory-server");
+
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+
+      console.log(`Starting MongoDB with persistent storage at ${DATA_DIR}...`);
+
+      mongod = await MongoMemoryServer.create({
+        instance: {
+          dbName: "gov_booking",
+          dbPath: DATA_DIR,
+          storageEngine: "wiredTiger",
+        },
+      });
+
+      uri = mongod.getUri();
     }
 
-    console.log(`Starting MongoDB with persistent storage at ${DATA_DIR}...`);
-
-    mongod = await MongoMemoryServer.create({
-      instance: {
-        dbName: "gov_booking",
-        dbPath: DATA_DIR,
-        storageEngine: "wiredTiger",
-      },
-    });
-
-    const uri = mongod.getUri();
     const conn = await mongoose.connect(uri);
-    console.log(`MongoDB connected: ${conn.connection.host} (persistent at ${DATA_DIR})`);
+    console.log(`MongoDB connected: ${conn.connection.host}`);
 
     await seedDatabase();
 

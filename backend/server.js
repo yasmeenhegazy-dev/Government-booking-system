@@ -2,6 +2,8 @@ const { webcrypto } = require("crypto");
 if (!globalThis.crypto) globalThis.crypto = webcrypto;
 
 require("dotenv").config();
+const path = require("path");
+const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -11,14 +13,21 @@ const morgan = require("morgan");
 const connectDB = require("./config/db");
 
 const app = express();
+const isProduction = process.env.NODE_ENV === "production";
 
 // Connect to MongoDB
 connectDB();
 
 // --------------- Security Middleware ---------------
 
-// Set security HTTP headers
-app.use(helmet());
+// Set security HTTP headers. In production we also serve the SPA from this
+// process, so relax CSP / CORP to let the bundled JS/CSS/images load.
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 
 // Request logging
 app.use(morgan("dev"));
@@ -74,8 +83,8 @@ app.use("/api/appointments", (req, res, next) => {
 
 // --------------- Routes ---------------
 
-// Root route - API info page
-app.get("/", (req, res) => {
+// Root route - API info page (only in dev; in production the SPA owns `/`)
+app.get("/api", (req, res) => {
   res.json({
     name: "Government Booking System API",
     version: "1.0.0",
@@ -114,6 +123,19 @@ app.use("/api/branches", require("./routes/branches"));
 app.use("/api/slots", require("./routes/slots"));
 app.use("/api/appointments", require("./routes/appointments"));
 app.use("/api/employees", require("./routes/employees"));
+
+// --------------- Static frontend (production) ---------------
+// Serve the built Vite SPA from frontend/dist and fall back to index.html
+// for client-side routing. Skipped in dev where Vite runs separately.
+const FRONTEND_DIST = path.resolve(__dirname, "..", "frontend", "dist");
+if (isProduction && fs.existsSync(FRONTEND_DIST)) {
+  app.use(express.static(FRONTEND_DIST));
+
+  app.get(/^(?!\/api).*/, (req, res, next) => {
+    if (req.method !== "GET") return next();
+    res.sendFile(path.join(FRONTEND_DIST, "index.html"));
+  });
+}
 
 // --------------- Error Handling ---------------
 

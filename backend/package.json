@@ -17,12 +17,15 @@
     "express-validator": "^7.2.1",
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
-    "mongodb-memory-server": "^11.0.1",
     "mongoose": "^8.9.5",
     "morgan": "^1.10.1",
     "nodemailer": "^8.0.7"
   },
   "devDependencies": {
+    "mongodb-memory-server": "^11.0.1",
     "nodemon": "^3.1.9"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
