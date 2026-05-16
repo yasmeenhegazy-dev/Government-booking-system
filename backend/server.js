@@ -32,11 +32,14 @@ app.use(
 // Request logging
 app.use(morgan("dev"));
 
-// CORS - only allow frontend origin
+// CORS - only allow frontend origin. ALLOWED_ORIGINS="*" disables the check
+// (used for tunnel demos where the public hostname is ephemeral).
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || "http://localhost:3000").split(",");
+const allowAllOrigins = allowedOrigins.includes("*");
 app.use(
   cors({
     origin: function (origin, callback) {
+      if (allowAllOrigins) return callback(null, true);
       // Allow requests with no origin (mobile apps, curl, etc in dev)
       if (!origin && process.env.NODE_ENV !== "production") return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
